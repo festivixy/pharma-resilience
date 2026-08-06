@@ -1,0 +1,26 @@
+Third-party libraries vendored for the offline documentation viewer.
+
+All are bundled locally so that docs/site/index.html works with no network
+access and no server. None of them is a dependency of the project itself --
+nothing in src/, tests/, or the runner scripts uses them.
+
+  marked 12.0.2                MIT     https://github.com/markedjs/marked
+    marked.min.js              Markdown -> HTML
+
+  KaTeX 0.16.11                MIT     https://github.com/KaTeX/KaTeX
+    katex.min.js               math typesetting
+    katex.auto-render.min.js   finds $...$ / $$...$$ in the DOM
+    katex.min.css              stylesheet, with the 20 KaTeX woff2 fonts
+                               embedded as base64 data URIs so that fonts
+                               load correctly from a file:// URL
+
+  Mermaid 10.9.1               MIT     https://github.com/mermaid-js/mermaid
+    mermaid.min.js             renders the ```mermaid diagram blocks
+
+Syntax highlighting of source files is done at build time by Pygments (BSD),
+so no highlighting library is shipped here.
+
+To refresh a library, replace the file and re-run:  python docs/build_site.py
+For KaTeX specifically, note that katex.min.css here is NOT the upstream file:
+it has had its font URLs inlined. Re-inlining is described in the git history
+of docs/build_site.py.

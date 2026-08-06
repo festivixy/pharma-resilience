@@ -10,6 +10,10 @@ protection optimized using two-stage robust optimization, and validates the
 column-and-constraint generation (C&CG) algorithm using exhaustive enumeration
 of all scenarios.
 
+> **Implementation documentation.** This file is the research report. A
+> chapter-by-chapter explainer of the network model, the mathematics, the code,
+> the experiments, and the test suite lives in [`docs/`](docs/README.md).
+
 ## Contents
 
 - [Overview](#overview)

@@ -67,6 +67,10 @@ datasets/
 outputs/
 results/*
 !results/*.png
+
+# generated documentation site; the vendored assets under docs/site/assets/
+# are tracked, the page itself is rebuilt with: python docs/build_site.py
+docs/site/index.html
 figures/generated/
 plots/generated/
 reports/generated/
