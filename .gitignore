@@ -118,3 +118,6 @@ coverage/
 
 claude.md
 temp/
+# result files the paper cites
+!results/*.csv
+!results/instances.json

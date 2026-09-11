@@ -17,7 +17,7 @@ def apply_allocation(network, extra):
     return protected
 
 
-def min_spend_plan(network, scenarios, target, integer=False):
+def min_spend_plan(network, scenarios, target, integer=False, per_hospital=False):
     nodes = _protectable(network)
     arcs = network["arc_cost"]
     hospitals = network["hospitals"]
@@ -52,7 +52,13 @@ def min_spend_plan(network, scenarios, target, integer=False):
                 prob += inflow(n) <= network["capacity"][n] + extra[n]
         for h in hospitals:
             prob += inflow(h) + unmet[h] == demand[h]
-        prob += pulp.lpSum(unmet.values()) <= (1 - target) * total_demand
+        if per_hospital:
+            # every hospital must reach the target on its own demand, which is
+            # what an aggregate bound does not enforce
+            for h in hospitals:
+                prob += unmet[h] <= (1 - target) * demand[h]
+        else:
+            prob += pulp.lpSum(unmet.values()) <= (1 - target) * total_demand
 
     prob.solve(pulp.PULP_CBC_CMD(msg=0))
     status = pulp.LpStatus[prob.status]

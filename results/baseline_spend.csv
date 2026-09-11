@@ -1,0 +1,5 @@
+rule,spend,premium_pct
+optimal,170.0,0.0
+proportional,310,82.4
+equal,320,88.2
+greedy,200,17.6
