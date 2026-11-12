@@ -17,7 +17,11 @@ def apply_allocation(network, extra):
     return protected
 
 
-def min_spend_plan(network, scenarios, target, integer=False, per_hospital=False):
+def min_spend_plan(network, scenarios, target, integer=False, per_hospital=False,
+                   rates=None):
+    """`rates` prices each facility's extra capacity separately. The default
+    charges every facility the network's single rate, under which many
+    allocations tie; unequal rates pick one of them."""
     nodes = _protectable(network)
     arcs = network["arc_cost"]
     hospitals = network["hospitals"]
@@ -27,7 +31,9 @@ def min_spend_plan(network, scenarios, target, integer=False, per_hospital=False
 
     prob = pulp.LpProblem("min_protection_spend", pulp.LpMinimize)
     extra = {n: pulp.LpVariable(f"e_{n}", lowBound=0, cat=category) for n in nodes}
-    prob += network["protection_cost_rate"] * pulp.lpSum(extra.values())
+    if rates is None:
+        rates = {n: network["protection_cost_rate"] for n in nodes}
+    prob += pulp.lpSum(rates[n] * extra[n] for n in nodes)
 
     for i, failed in enumerate(scenarios):
         flow = {a: pulp.LpVariable(f"x{i}_{a[0]}_{a[1]}", lowBound=0) for a in arcs}
@@ -68,7 +74,7 @@ def min_spend_plan(network, scenarios, target, integer=False, per_hospital=False
     extra_values = {n: extra[n].value() for n in nodes}
     return {
         "status": status,
-        "spend": network["protection_cost_rate"] * sum(extra_values.values()),
+        "spend": sum(rates[n] * extra_values[n] for n in nodes),
         "extra": extra_values,
     }
 

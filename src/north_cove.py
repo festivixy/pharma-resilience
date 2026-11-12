@@ -37,14 +37,20 @@ THROUGHPUT_HEADROOM = 1.5
 POOL_OF = {"McKesson": "H_McK", "Cencora": "H_Cen", "Cardinal": "H_Car", "Direct": "H_Dir"}
 
 
-def north_cove_network(penalty=1000, protection_cost_rate=1.0):
+def north_cove_network(penalty=1000, protection_cost_rate=1.0, channels=None,
+                       headroom=THROUGHPUT_HEADROOM):
+    """`channels` and `headroom` replace the assumed channel shares and the
+    assumed throughput multiple, so a conclusion can be tested against other
+    values of the numbers that were not documented."""
+    if channels is None:
+        channels = CHANNELS
     suppliers = list(PLANTS)
-    warehouses = list(CHANNELS)
+    warehouses = list(channels)
     hospitals = [POOL_OF[c] for c in warehouses]
 
     capacity = dict(PLANTS)
-    capacity.update({c: THROUGHPUT_HEADROOM * share for c, share in CHANNELS.items()})
-    demand = {POOL_OF[c]: share for c, share in CHANNELS.items()}
+    capacity.update({c: headroom * share for c, share in channels.items()})
+    demand = {POOL_OF[c]: share for c, share in channels.items()}
 
     arc_cost = {}
     for plant in suppliers:

@@ -69,3 +69,30 @@ def test_ccg_converges_without_enumerating_all_scenarios():
     assert plan["status"] == "Optimal"
     assert plan["iterations"] <= 5
     assert plan["iterations"] < len(pairs)
+
+
+def test_unit_node_rates_reproduce_the_default_plan_spend():
+    net = base_network()
+    scenarios = single_node_failures(net)
+    rates = {n: 1.0 for n in net["capacity"]}
+    assert min_spend_plan(net, scenarios, 1.0, rates=rates)["spend"] == pytest.approx(
+        min_spend_plan(net, scenarios, 1.0)["spend"])
+
+
+def test_a_dearer_facility_is_avoided_when_a_cheaper_one_serves():
+    """Two suppliers feed one chain and hold four units against a demand of
+    five. Either can take the missing unit, so the cheaper one should."""
+    net = {
+        "suppliers": ["S1", "S2"], "factories": ["F"], "warehouses": ["W"],
+        "hospitals": ["H"],
+        "capacity": {"S1": 2, "S2": 2, "F": 20, "W": 20},
+        "demand": {"H": 5},
+        "arc_cost": {("S1", "F"): 1, ("S2", "F"): 1, ("F", "W"): 1, ("W", "H"): 1},
+        "penalty": 1000, "protection_cost_rate": 1.0,
+    }
+    intact = [()]
+    plan = min_spend_plan(net, intact, 1.0,
+                          rates={"S1": 2.0, "S2": 1.0, "F": 1.0, "W": 1.0})
+    assert plan["extra"]["S2"] == pytest.approx(1.0)
+    assert plan["extra"]["S1"] == pytest.approx(0.0)
+    assert plan["spend"] == pytest.approx(1.0)
